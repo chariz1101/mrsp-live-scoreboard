@@ -72,10 +72,14 @@ player their points immediately.
 ## Branding
 
 Colours come from the chapter logo (`public/mrsp-logo.jpg`, also used
-as the favicon). Body text is Urbanist, loaded automatically. Headings
-use Matterhorn, which is a licensed font and is not in the repo: put
-`Matterhorn.woff2` (or `Matterhorn.otf`) in `public/fonts/` and it takes
-over. Until then headings fall back to Urbanist ExtraBold.
+as the favicon). Oswald (Google Fonts, loaded automatically in
+`app/layout.jsx`) is used for body text, names, scores and times.
+Headings, the banner titles and the MRSP wordmark use Butler by Fabian
+De Smet, which is free for personal and commercial use but is not on
+Google Fonts: download it from
+https://www.fabiandesmet.com/portfolio/butler-font/ and put
+`Butler_Bold.woff2` (or `Butler_Bold.otf`) in `public/fonts/`. Until
+then those headings fall back to Oswald.
 
 The Facebook link lives in `app/brand.jsx`.
 

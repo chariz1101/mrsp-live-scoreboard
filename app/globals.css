@@ -1,11 +1,12 @@
-/* Matterhorn is a licensed display face. Drop the files into public/fonts
-   with these names and every heading picks them up; until then the
-   headings fall back to Urbanist ExtraBold. */
+/* Butler (Fabian De Smet, free for personal and commercial use) is not
+   on Google Fonts. Download it from fabiandesmet.com/portfolio/butler-font
+   and put Butler_Bold.woff2 (or Butler_Bold.otf) in public/fonts.
+   Until then, headings fall back to Oswald. */
 @font-face{
-  font-family:"Matterhorn";
-  src:url("/fonts/Matterhorn.woff2") format("woff2"),
-      url("/fonts/Matterhorn.otf") format("opentype");
-  font-weight:400 900;
+  font-family:"Butler";
+  src:url("/fonts/Butler_Bold.woff2") format("woff2"),
+      url("/fonts/Butler_Bold.otf") format("opentype");
+  font-weight:700 900;
   font-display:swap;
 }
 
@@ -26,13 +27,13 @@
   --dim:#b8bbe8;
   --line:rgba(255,255,255,.16);
   --grid:rgba(255,255,255,.07);
-  --display:"Matterhorn",var(--font-urbanist),system-ui,sans-serif;
-  --body:var(--font-urbanist),system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --display:"Butler",var(--font-oswald),Georgia,serif;
+  --body:var(--font-oswald),"Arial Narrow",system-ui,sans-serif;
   color-scheme:dark;
 }
 *,*::before,*::after{box-sizing:border-box;}
 html,body{margin:0;padding:0;background:var(--navy);color:var(--ink);
-  font-family:var(--body);font-weight:500;
+  font-family:var(--body);font-weight:400;
   -webkit-font-smoothing:antialiased;}
 body{min-height:100vh;
   padding-top:env(safe-area-inset-top,0px);
@@ -105,12 +106,12 @@ button,input,select{font-family:inherit;}
 .rowline{display:flex;align-items:center;gap:14px;}
 .rankbox{width:56px;flex-shrink:0;display:flex;justify-content:center;}
 .medal{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;
-  justify-content:center;font-family:var(--display);font-weight:800;font-size:19px;color:#3a2a06;
+  justify-content:center;font-family:var(--body);font-weight:700;font-size:19px;color:#3a2a06;
   border:3px solid rgba(255,255,255,.6);box-shadow:0 3px 12px rgba(0,0,0,.45);}
 .medal.g1{background:linear-gradient(160deg,#ffd873,var(--gold));}
 .medal.g2{background:linear-gradient(160deg,#ffffff,var(--silver));}
 .medal.g3{background:linear-gradient(160deg,#e3a875,var(--bronze));color:#3d2208;}
-.plainrank{font-family:var(--display);font-size:24px;font-weight:800;color:var(--dim);}
+.plainrank{font-family:var(--body);font-size:24px;font-weight:700;color:var(--dim);}
 
 .avatar{width:52px;height:52px;border-radius:50%;flex-shrink:0;
   display:flex;align-items:center;justify-content:center;
@@ -130,11 +131,11 @@ button,input,select{font-family:inherit;}
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .bar .meta{font-size:12px;color:rgba(255,255,255,.75);text-align:right;
   white-space:nowrap;font-variant-numeric:tabular-nums;}
-.bar .score{font-family:var(--display);font-size:26px;font-weight:800;min-width:66px;
+.bar .score{font-family:var(--body);font-size:28px;font-weight:700;min-width:66px;
   text-align:right;font-variant-numeric:tabular-nums;
   text-shadow:0 2px 10px rgba(0,0,0,.4);}
 /* Arm Tank best time (or DNF) sits in the meta slot, points stay in score. */
-.bar .meta .time{font-family:var(--display);font-size:16px;font-weight:800;color:#fff;
+.bar .meta .time{font-family:var(--body);font-size:16px;font-weight:700;color:#fff;
   letter-spacing:.3px;}
 .bar .meta .time.dnf{color:#ff8a90;}
 
