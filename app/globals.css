@@ -148,6 +148,8 @@ input:focus,select:focus{outline:2px solid #fff;outline-offset:-1px;}
 input:disabled{opacity:.45;}
 .row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px;}
 .row>div{flex:1;min-width:140px;}
+/* Player pickers need room for "Name — School" before they wrap. */
+.row>div.wide{min-width:240px;}
 .act{background:var(--red);border:0;color:#fff;padding:12px 22px;border-radius:6px;
   font-size:15px;font-weight:700;cursor:pointer;}
 .act:hover{background:var(--red-bright);}
