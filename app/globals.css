@@ -64,6 +64,11 @@ button,input,select{font-family:inherit;}
   text-transform:uppercase;padding:3px 7px;margin:4px 0 3px;}
 .wordmark .jc{font-size:12px;font-weight:500;color:var(--dim);}
 .grow{flex:1;}
+.actions{display:flex;align-items:center;gap:10px;}
+.phone-only{display:none;}
+.footlink{color:var(--dim);font-size:13px;font-weight:600;text-decoration:underline;
+  text-underline-offset:3px;}
+.footlink:hover{color:#fff;}
 .linkbtn{display:inline-flex;align-items:center;gap:7px;
   background:rgba(255,255,255,.07);border:1px solid var(--line);color:var(--ink);
   padding:9px 15px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;
@@ -201,11 +206,31 @@ input:disabled{opacity:.45;}
 .wide-btn{width:100%;}
 
 @media (max-width:620px){
+  .desk-only{display:none !important;}
+  .phone-only{display:inline;}
+  .footlink.phone-only{display:block;width:100%;}
+
+  /* One tidy header row: brand left, one action right. */
+  .top{flex-wrap:nowrap;gap:10px;margin-bottom:20px;}
+  .brand{gap:10px;min-width:0;}
   .brand .logo{width:46px;height:46px;}
   .wordmark .mrsp{font-size:21px;}
-  .frame{padding:54px 14px 22px;}
+  .wordmark .wv{white-space:nowrap;}
+  .actions{flex-shrink:0;}
+  .actions .linkbtn{padding:9px 12px;}
+
+  /* Tabs become a single segmented bar. */
+  .tabs{flex-wrap:nowrap;gap:0;padding:4px;border:1px solid var(--line);border-radius:8px;
+    background:rgba(5,3,58,.6);margin-bottom:0;}
+  .tabs button{flex:1;min-width:0;border:0;background:transparent;padding:11px 4px;
+    font-size:14px;border-radius:5px;white-space:nowrap;}
+  .tabs button.on{box-shadow:none;}
+
+  .frame{margin-top:44px;padding:54px 14px 22px;}
   .title h1{font-size:21px;letter-spacing:1.4px;}
   .title{padding:10px 22px;}
+  .caption{font-size:13px;margin:-8px 0 20px;}
+  .rowline{gap:10px;}
   .rankbox{width:40px;}
   .medal{width:36px;height:36px;font-size:15px;border-width:2px;}
   .avatar{width:40px;height:40px;font-size:14px;border-width:2px;}
@@ -213,8 +238,26 @@ input:disabled{opacity:.45;}
   .bar .nm{font-size:15px;}
   .bar .score{font-size:21px;min-width:48px;}
   .bar .meta{display:none;}
+  .foot{flex-direction:column;gap:12px;}
+
   .modal-body{padding:18px 16px 20px;}
   .modal h2{font-size:22px;}
   .attend{flex-direction:column;align-items:center;text-align:left;}
   .attend .qr{width:200px;height:200px;}
+}
+
+/* Narrow phones: drop the initials circle so names have room. */
+@media (max-width:420px){
+  .avatar{display:none;}
+  .rankbox{width:36px;}
+  .frame{padding-left:12px;padding-right:12px;}
+}
+
+@media (max-width:360px){
+  .brand .logo{width:40px;height:40px;border-radius:9px;}
+  .wordmark .mrsp{font-size:19px;}
+  .wordmark .wv{font-size:10px;letter-spacing:.8px;padding:2px 5px;}
+  .wordmark .jc{font-size:11px;}
+  .actions .linkbtn{padding:8px 10px;font-size:12px;}
+  .tabs button{font-size:13px;}
 }

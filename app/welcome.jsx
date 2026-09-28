@@ -63,7 +63,7 @@ export function Welcome({ onClose }) {
               </ol>
               <p className="hint">
                 Viewing this on your phone? Scan the code shown at the MRSP booth
-                instead. You can reopen this card anytime from <b>Attendance QR</b>.
+                instead. You can reopen this card anytime from the <b>QR button</b> at the top.
               </p>
             </div>
           </div>

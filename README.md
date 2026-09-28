@@ -83,8 +83,8 @@ The Facebook link lives in `app/brand.jsx`.
 
 The first time someone opens the scoreboard, a card shows the RSTW 2026
 event details and the InnoVents attendance QR (activity 891). Closing it
-is remembered in that browser; **Attendance QR** in the header reopens
-it. The content is in `app/welcome.jsx` and the images in `public/rstw/`.
+is remembered in that browser; the QR button in the header
+(**Attendance QR** on the display, **Check in** on phones) reopens it. The content is in `app/welcome.jsx` and the images in `public/rstw/`.
 To show it again to everyone, bump `SEEN_KEY` in that file.
 
 On the booth laptop, close it once before the event and use Attendance

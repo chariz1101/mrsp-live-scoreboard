@@ -37,13 +37,21 @@ function Row({ rank, name, team, meta, score, dnf }) {
 }
 
 const TABS = [
-  { id: "overall", label: "Overall Champion", title: "Leaderboard",
+  { id: "overall", label: "Overall Champion", short: "Overall", title: "Leaderboard",
     caption: "Tank band points plus balloon match points" },
-  { id: "tank", label: "Robotic Arm Tank", title: "Arm Tank",
+  { id: "tank", label: "Robotic Arm Tank", short: "Arm Tank", title: "Arm Tank",
     caption: "Best of two attempts. Drops add 5s, hand touches add 10s." },
-  { id: "balloon", label: "Pop the Balloon", title: "Balloon Pop",
+  { id: "balloon", label: "Pop the Balloon", short: "Balloon", title: "Balloon Pop",
     caption: "Three points per win, one for taking part" },
 ];
+
+function QrIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="currentColor">
+      <path d="M3 3h8v8H3V3zm2 2v4h4V5H5zm8-2h8v8h-8V3zm2 2v4h4V5h-4zM3 13h8v8H3v-8zm2 2v4h4v-4H5zm8-2h2v2h-2v-2zm2 2h2v2h-2v-2zm2-2h4v2h-2v2h-2v-4zm-4 4h2v2h2v2h-4v-4zm6 2h2v2h-2v-2z" />
+    </svg>
+  );
+}
 
 export default function Scoreboard() {
   const [data, setData] = useState({ players: [], runs: [], matches: [] });
@@ -111,11 +119,16 @@ export default function Scoreboard() {
       <div className="top">
         <Brand />
         <div className="grow" />
-        <button className="linkbtn" onClick={() => setRotate((v) => !v)}>
-          Auto-rotate: {rotate ? "on" : "off"}
-        </button>
-        <button className="linkbtn" onClick={() => setWelcome(true)}>Attendance QR</button>
-        <Link className="linkbtn" href="/admin">Admin</Link>
+        <div className="actions">
+          {/* Auto-rotate is for the booth display; phones don't need it. */}
+          <button className="linkbtn desk-only" onClick={() => setRotate((v) => !v)}>
+            Auto-rotate: {rotate ? "on" : "off"}
+          </button>
+          <button className="linkbtn" onClick={() => setWelcome(true)}>
+            <QrIcon /><span className="desk-only">Attendance QR</span><span className="phone-only">Check in</span>
+          </button>
+          <Link className="linkbtn desk-only" href="/admin">Admin</Link>
+        </div>
       </div>
 
       {err ? <div className="note err">{err}</div> : null}
@@ -123,7 +136,10 @@ export default function Scoreboard() {
       <div className="tabs">
         {TABS.map((t) => (
           <button key={t.id} className={tab === t.id ? "on" : ""}
-            onClick={() => setTab(t.id)}>{t.label}</button>
+            onClick={() => setTab(t.id)}>
+            <span className="desk-only">{t.label}</span>
+            <span className="phone-only">{t.short}</span>
+          </button>
         ))}
       </div>
 
@@ -138,6 +154,7 @@ export default function Scoreboard() {
       <div className="foot">
         <span>Mechatronics and Robotics Society of the Philippines · Western Visayas Junior Chapter</span>
         <FacebookLink label="Follow us on Facebook" />
+        <Link className="footlink phone-only" href="/admin">Facilitator login</Link>
       </div>
 
       {welcome ? <Welcome onClose={() => setWelcome(false)} /> : null}
