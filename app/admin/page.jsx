@@ -90,8 +90,10 @@ export default function Admin() {
       <div className="top">
         <Brand sub="Facilitator dashboard" />
         <div className="grow" />
-        <FacebookLink />
-        <Link className="linkbtn" href="/">Scoreboard</Link>
+        <div className="actions">
+          <span className="desk-only"><FacebookLink /></span>
+          <Link className="linkbtn" href="/">Scoreboard</Link>
+        </div>
       </div>
 
       {note ? <div className={"note " + (note.bad ? "err" : "ok")}>{note.text}</div> : null}
