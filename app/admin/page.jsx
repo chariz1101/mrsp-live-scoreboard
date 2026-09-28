@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { Brand, FacebookLink } from "../brand";
 import {
-  adjustedTime, formatTime, tankPoints, tankBandLabel, TANK_BANDS,
+  adjustedTime, formatTime, parseTime, tankPoints, tankBandLabel, TANK_BANDS,
+  PENALTY_DROP, PENALTY_RESET,
 } from "@/lib/scoring";
 
 export default function Admin() {
@@ -63,7 +65,7 @@ export default function Admin() {
     return (
       <div className="wrap">
         <div className="top">
-          <div className="brand">MRSP <b>Western Visayas</b></div>
+          <Brand />
           <div className="grow" />
           <Link className="linkbtn" href="/">Scoreboard</Link>
         </div>
@@ -86,8 +88,9 @@ export default function Admin() {
   return (
     <div className="wrap">
       <div className="top">
-        <div className="brand">MRSP <b>Admin</b></div>
+        <Brand sub="Facilitator dashboard" />
         <div className="grow" />
+        <FacebookLink />
         <Link className="linkbtn" href="/">Scoreboard</Link>
       </div>
 
@@ -130,44 +133,6 @@ function AddPlayer({ send, flash }) {
   );
 }
 
-function Stopwatch({ onUse }) {
-  const [ms, setMs] = useState(0);
-  const [running, setRunning] = useState(false);
-  const started = useRef(0);
-  const base = useRef(0);
-
-  useEffect(() => {
-    if (!running) return;
-    const t = setInterval(() => setMs(base.current + (Date.now() - started.current)), 100);
-    return () => clearInterval(t);
-  }, [running]);
-
-  const toggle = () => {
-    if (running) { base.current += Date.now() - started.current; setRunning(false); }
-    else { started.current = Date.now(); setRunning(true); }
-  };
-  const reset = () => { base.current = 0; setMs(0); setRunning(false); };
-
-  const m = Math.floor(ms / 60000);
-  const s = Math.floor((ms % 60000) / 1000);
-  const t = Math.floor((ms % 1000) / 100);
-
-  return (
-    <div className="timer">
-      <div className="disp">
-        {String(m).padStart(2, "0")}:{String(s).padStart(2, "0")}.{t}
-      </div>
-      <div className="btns">
-        <button className="act" onClick={toggle}>{running ? "Stop" : "Start"}</button>
-        <button className="ghost" onClick={reset}>Reset</button>
-        <button className="ghost" onClick={() => onUse((ms / 1000).toFixed(1))}>
-          Use this time
-        </button>
-      </div>
-    </div>
-  );
-}
-
 function AddRun({ players, runs, send, drop, flash }) {
   const [pid, setPid] = useState("");
   const [time, setTime] = useState("");
@@ -180,16 +145,19 @@ function AddRun({ players, runs, send, drop, flash }) {
   }, [players, pid]);
 
   // Live preview of what this run will score, before it is saved.
-  const adj = dnf ? null
-    : (parseFloat(time) || 0) + Number(drops) * 5 + Number(resets) * 10;
+  const secs = parseTime(time);
+  const adj = dnf || !secs ? null
+    : secs + Number(drops) * PENALTY_DROP + Number(resets) * PENALTY_RESET;
   const preview = dnf ? "DNF — 1 point"
-    : adj > 0 ? `${formatTime(adj)} adjusted — ${tankBandLabel(adj)} — ${tankPoints(adj)} points`
-    : "Enter a time to preview the score";
+    : adj ? `${formatTime(adj)} adjusted — ${tankBandLabel(adj)} — ${tankPoints(adj)} points`
+    : time.trim() ? "Type the time as 1:27.5 or 87.5"
+    : "Enter the time from the booth timer to preview the score";
 
   const go = async () => {
     if (!pid) return flash("Choose a player.", true);
+    if (!dnf && !secs) return flash("Enter the time as 1:27.5 or 87.5.", true);
     const ok = await send("/api/runs", {
-      player_id: Number(pid), time_sec: parseFloat(time) || 0,
+      player_id: Number(pid), time_sec: dnf ? 0 : secs,
       drops: Number(drops), resets: Number(resets), dnf,
     });
     if (ok) { setTime(""); setDrops(0); setResets(0); setDnf(false); }
@@ -205,8 +173,6 @@ function AddRun({ players, runs, send, drop, flash }) {
         {TANK_BANDS.map((b) => `${b.label} = ${b.points}`).join(" · ")} · 3:00+ = 2 · DNF = 1
       </p>
 
-      <Stopwatch onUse={setTime} />
-
       <div className="row">
         <div><label>Player</label>
           <select value={pid} onChange={(e) => setPid(e.target.value)}>
@@ -214,15 +180,15 @@ function AddRun({ players, runs, send, drop, flash }) {
               ? players.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)
               : <option value="">Add a player first</option>}
           </select></div>
-        <div><label>Time (seconds)</label>
-          <input type="number" step="0.1" min="0" value={time} placeholder="87.5"
+        <div><label>Time from booth timer</label>
+          <input value={time} placeholder="1:27.5" autoComplete="off"
             onChange={(e) => setTime(e.target.value)} disabled={dnf} /></div>
       </div>
       <div className="row">
-        <div><label>Drops (+5s)</label>
+        <div><label>Drops (+{PENALTY_DROP} sec)</label>
           <input type="number" min="0" value={drops}
             onChange={(e) => setDrops(e.target.value)} disabled={dnf} /></div>
-        <div><label>Hand touches (+10s)</label>
+        <div><label>Hand touches (+{PENALTY_RESET} sec)</label>
           <input type="number" min="0" value={resets}
             onChange={(e) => setResets(e.target.value)} disabled={dnf} /></div>
         <div><label>Result</label>

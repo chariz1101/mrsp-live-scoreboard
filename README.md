@@ -64,10 +64,20 @@ Open `/` on the display laptop and turn on Auto-rotate; it cycles the
 three boards every 9 seconds. Facilitators open `/admin` on their
 phones, unlock once, and the session lasts 12 hours.
 
-The admin page has a built-in stopwatch. Start it when the player
-begins, stop when they finish, tap "Use this time", and it fills the
-field. Before saving, the panel previews exactly what the run will
-score, so you can tell the player their points immediately.
+Time the Arm Tank runs with the booth's own timer, then type the time
+into the admin page as `1:27.5` or `87.5` (seconds). Before saving, the
+panel previews exactly what the run will score, so you can tell the
+player their points immediately.
+
+## Branding
+
+Colours come from the chapter logo (`public/mrsp-logo.jpg`, also used
+as the favicon). Body text is Urbanist, loaded automatically. Headings
+use Matterhorn, which is a licensed font and is not in the repo: put
+`Matterhorn.woff2` (or `Matterhorn.otf`) in `public/fonts/` and it takes
+over. Until then headings fall back to Urbanist ExtraBold.
+
+The Facebook link lives in `app/brand.jsx`.
 
 ## Notes
 

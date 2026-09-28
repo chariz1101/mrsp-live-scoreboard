@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { Brand, FacebookLink } from "./brand";
 import {
   tankStandings, balloonStandings, overallStandings, formatTime,
 } from "@/lib/scoring";
@@ -103,7 +104,7 @@ export default function Scoreboard() {
   return (
     <div className="wrap">
       <div className="top">
-        <div className="brand">MRSP <b>Western Visayas</b></div>
+        <Brand />
         <div className="grow" />
         <button className="linkbtn" onClick={() => setRotate((v) => !v)}>
           Auto-rotate: {rotate ? "on" : "off"}
@@ -126,6 +127,11 @@ export default function Scoreboard() {
         {rows.length
           ? <div className="rows">{rows}</div>
           : <div className="empty">No scores recorded yet.</div>}
+      </div>
+
+      <div className="foot">
+        <span>Mechatronics and Robotics Society of the Philippines · Western Visayas Junior Chapter</span>
+        <FacebookLink label="Follow us on Facebook" />
       </div>
     </div>
   );
