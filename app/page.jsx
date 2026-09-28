@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Brand, FacebookLink } from "./brand";
+import { Welcome, hasSeenWelcome } from "./welcome";
 import {
   tankStandings, balloonStandings, overallStandings, formatTime,
 } from "@/lib/scoring";
@@ -49,6 +50,10 @@ export default function Scoreboard() {
   const [tab, setTab] = useState("overall");
   const [rotate, setRotate] = useState(false);
   const [err, setErr] = useState("");
+  const [welcome, setWelcome] = useState(false);
+
+  // First visit on this browser: show the RSTW attendance card.
+  useEffect(() => { if (!hasSeenWelcome()) setWelcome(true); }, []);
 
   /* Poll rather than hold a socket open. Vercel's serverless functions
      are short-lived, so a 3s poll is simpler and costs almost nothing. */
@@ -109,6 +114,7 @@ export default function Scoreboard() {
         <button className="linkbtn" onClick={() => setRotate((v) => !v)}>
           Auto-rotate: {rotate ? "on" : "off"}
         </button>
+        <button className="linkbtn" onClick={() => setWelcome(true)}>Attendance QR</button>
         <Link className="linkbtn" href="/admin">Admin</Link>
       </div>
 
@@ -133,6 +139,8 @@ export default function Scoreboard() {
         <span>Mechatronics and Robotics Society of the Philippines · Western Visayas Junior Chapter</span>
         <FacebookLink label="Follow us on Facebook" />
       </div>
+
+      {welcome ? <Welcome onClose={() => setWelcome(false)} /> : null}
     </div>
   );
 }
