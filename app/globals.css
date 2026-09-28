@@ -133,7 +133,10 @@ button,input,select{font-family:inherit;}
 .bar .score{font-family:var(--display);font-size:26px;font-weight:800;min-width:66px;
   text-align:right;font-variant-numeric:tabular-nums;
   text-shadow:0 2px 10px rgba(0,0,0,.4);}
-.bar .score.dnf{font-size:16px;color:#ff8a90;}
+/* Arm Tank best time (or DNF) sits in the meta slot, points stay in score. */
+.bar .meta .time{font-family:var(--display);font-size:16px;font-weight:800;color:#fff;
+  letter-spacing:.3px;}
+.bar .meta .time.dnf{color:#ff8a90;}
 
 .empty{text-align:center;color:var(--dim);padding:46px 0;font-size:15px;}
 
@@ -237,7 +240,12 @@ input:disabled{opacity:.45;}
   .bar{padding:10px 13px;gap:10px;}
   .bar .nm{font-size:15px;}
   .bar .score{font-size:21px;min-width:48px;}
-  .bar .meta{display:none;}
+  /* Name on top, time / record underneath, points on the right. */
+  .bar{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:10px;row-gap:2px;}
+  .bar .who{grid-column:1;}
+  .bar .meta{grid-column:1;text-align:left;}
+  .bar .score{grid-column:2;grid-row:1 / span 2;align-self:center;}
+  .bar .meta .time{font-size:14px;}
   .foot{flex-direction:column;gap:12px;}
 
   .modal-body{padding:18px 16px 20px;}
