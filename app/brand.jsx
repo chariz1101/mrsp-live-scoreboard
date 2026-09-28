@@ -4,7 +4,7 @@ export const FACEBOOK_URL = "https://www.facebook.com/profile.php?id=61591024487
 export function Brand({ sub = "Junior Chapter" }) {
   return (
     <div className="brand">
-      <img className="logo" src="/mrsp-logo.jpg" alt="MRSP Western Visayas Junior Chapter" />
+      <img className="logo" src="/mrsp-logo.jpg" alt="Mechatronics and Robotics Society of the Philippines - Western Visayas Junior Chapter" />
       <div className="wordmark">
         <div className="mrsp">MRSP</div>
         <div className="wv">Western Visayas</div>

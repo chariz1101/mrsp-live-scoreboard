@@ -14,7 +14,7 @@ function initials(name) {
   return ((parts[0]?.[0] || "") + (parts[1]?.[0] || "")).toUpperCase() || "?";
 }
 
-function Row({ rank, name, team, meta, score, dnf }) {
+function Row({ rank, name, team, meta, score }) {
   const medal = rank <= 3 ? ["g1", "g2", "g3"][rank - 1] : null;
   return (
     <div className={"rowline" + (rank === 1 ? " top1" : "")}>
@@ -30,7 +30,7 @@ function Row({ rank, name, team, meta, score, dnf }) {
           {team ? <div className="tm">{team}</div> : null}
         </div>
         {meta ? <div className="meta">{meta}</div> : null}
-        <div className={"score" + (dnf ? " dnf" : "")}>{score}</div>
+        <div className="score">{score}</div>
       </div>
     </div>
   );
@@ -40,7 +40,7 @@ const TABS = [
   { id: "overall", label: "Overall Champion", short: "Overall", title: "Leaderboard",
     caption: "Tank band points plus balloon match points" },
   { id: "tank", label: "Robotic Arm Tank", short: "Arm Tank", title: "Arm Tank",
-    caption: "Best of two attempts. Drops add 5s, hand touches add 10s." },
+    caption: "Unlimited attempts, best time counts. Drops add 5s, hand touches add 10s." },
   { id: "balloon", label: "Pop the Balloon", short: "Balloon", title: "Balloon Pop",
     caption: "Three points per win, one for taking part" },
 ];
@@ -98,9 +98,11 @@ export default function Scoreboard() {
   if (tab === "tank") {
     rows = tankStandings(players, runs).map((r, i) => (
       <Row key={r.player.id} rank={i + 1} name={r.player.name} team={r.player.team}
-        meta={r.dnf ? `${r.attempts} run${r.attempts > 1 ? "s" : ""}`
-                    : `${formatTime(r.best)} · ${r.attempts} run${r.attempts > 1 ? "s" : ""}`}
-        score={r.dnf ? "DNF" : r.points} dnf={r.dnf} />
+        meta={<>
+          <b className={"time" + (r.dnf ? " dnf" : "")}>{r.dnf ? "DNF" : formatTime(r.best)}</b>
+          {` · ${r.attempts} run${r.attempts > 1 ? "s" : ""}`}
+        </>}
+        score={r.points} />
     ));
   } else if (tab === "balloon") {
     rows = balloonStandings(players, matches).map((r, i) => (
@@ -152,7 +154,7 @@ export default function Scoreboard() {
       </div>
 
       <div className="foot">
-        <span>Mechatronics and Robotics Society of the Philippines · Western Visayas Junior Chapter</span>
+        <span>Mechatronics and Robotics Society of the Philippines - Western Visayas Junior Chapter</span>
         <FacebookLink label="Follow us on Facebook" />
         <Link className="footlink phone-only" href="/admin">Facilitator login</Link>
       </div>
