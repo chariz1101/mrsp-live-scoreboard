@@ -1,7 +1,10 @@
-Put the licensed Matterhorn font files here, named exactly:
+Put Butler Bold here, named exactly one of:
 
-  Matterhorn.woff2   (preferred)
-  Matterhorn.otf     (fallback)
+  Butler_Bold.woff2   (preferred)
+  Butler_Bold.otf
 
-app/globals.css loads them for every heading. Until they are added,
-headings fall back to Urbanist ExtraBold.
+Free download (personal and commercial use):
+https://www.fabiandesmet.com/portfolio/butler-font/
+
+app/globals.css loads it for the wordmark, banner titles and headings.
+Until it is added, those fall back to Oswald.
