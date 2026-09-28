@@ -20,7 +20,8 @@ drop = +5s, hand touch or manual reset = +10s.
 | 3:00 or over | 2 |
 | Did not finish | 1 |
 
-**Pop the Balloon Challenge** — 3 points per win, plus 1 for taking part.
+**Pop the Balloon Challenge** — each match, the winner gets 3 points and
+the other player gets 1.
 
 **Overall Champion** — the two totals added together.
 

@@ -285,7 +285,7 @@ function AddMatch({ players, matches, send, drop, flash }) {
   return (
     <div className="card">
       <h2>Pop the Balloon — record a match</h2>
-      <p className="sub">Winner takes 3 points. Everyone who plays gets 1.</p>
+      <p className="sub">Each match: the winner gets 3 points, the other player gets 1.</p>
       <div className="row">
         <div className="wide"><label>Player A</label>
           <select value={a} onChange={(e) => setA(e.target.value)}>{opts}</select></div>

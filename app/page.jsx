@@ -104,7 +104,7 @@ const TABS = [
   { id: "tank", label: "Robotic Arm Tank", short: "Arm Tank", title: "Arm Tank",
     caption: "Unlimited attempts, best time counts. Drops add 5s, hand touches add 10s." },
   { id: "balloon", label: "Pop the Balloon", short: "Balloon", title: "Balloon Pop",
-    caption: "Three points per win, one for taking part" },
+    caption: "Each match: the winner gets 3 points, the other player gets 1" },
 ];
 
 function QrIcon() {
