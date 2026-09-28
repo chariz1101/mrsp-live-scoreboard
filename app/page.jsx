@@ -14,25 +14,87 @@ function initials(name) {
   return ((parts[0]?.[0] || "") + (parts[1]?.[0] || "")).toUpperCase() || "?";
 }
 
-function Row({ rank, name, team, meta, score }) {
-  const medal = rank <= 3 ? ["g1", "g2", "g3"][rank - 1] : null;
+/* Avatar colours stay in the brand's reds and blues. The same name
+   always gets the same colour, so a player is easy to spot across boards. */
+const TONES = [
+  ["#d0121a", "#590632"],
+  ["#2c34e0", "#050987"],
+  ["#4f6bff", "#1a1fb0"],
+  ["#b3122e", "#2c34e0"],
+];
+function tone(name) {
+  let h = 0;
+  for (const c of name) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+  const [a, b] = TONES[h % TONES.length];
+  return { background: `linear-gradient(150deg, ${a}, ${b})` };
+}
+
+function Avatar({ name, className = "" }) {
+  return <div className={"av " + className} style={tone(name)}>{initials(name)}</div>;
+}
+
+function Crown() {
   return (
-    <div className={"rowline" + (rank === 1 ? " top1" : "")}>
-      <div className="rankbox">
-        {medal
-          ? <div className={"medal " + medal}>{rank}</div>
-          : <div className="plainrank">{rank}</div>}
-      </div>
-      <div className="avatar">{initials(name)}</div>
-      <div className="bar">
-        <div className="who">
-          <div className="nm">{name}</div>
-          {team ? <div className="tm">{team}</div> : null}
-        </div>
-        {meta ? <div className="meta">{meta}</div> : null}
-        <div className="score">{score}</div>
-      </div>
+    <svg className="crown" viewBox="0 0 64 40" aria-hidden="true">
+      <path d="M4 14l14 10L32 4l14 20 14-10-6 26H10z" fill="#f2b632" stroke="#b7811a" strokeWidth="2" strokeLinejoin="round" />
+      <circle cx="4" cy="12" r="4" fill="#f2b632" /><circle cx="32" cy="4" r="4" fill="#f2b632" /><circle cx="60" cy="12" r="4" fill="#f2b632" />
+    </svg>
+  );
+}
+
+/* Top three on a podium: 2nd, 1st, 3rd from left to right. */
+function Podium({ entries }) {
+  return (
+    <div className="podium">
+      {[1, 0, 2].map((i) => {
+        const e = entries[i];
+        return (
+          <div key={i} className={"place p" + (i + 1)}>
+            <div className="who">
+              {e ? (
+                <>
+                  {i === 0 ? <Crown /> : null}
+                  <div className="pav-wrap">
+                    <Avatar name={e.name} className="pav" />
+                    <span className="chip">{e.score} pts</span>
+                  </div>
+                  <div className="pname">{e.name}</div>
+                  <div className="psub">{e.sub}</div>
+                </>
+              ) : (
+                <>
+                  <div className="pav-wrap"><div className="av pav open">?</div></div>
+                  <div className="pname open">Open spot</div>
+                </>
+              )}
+            </div>
+            <div className="block"><span>{i + 1}</span></div>
+          </div>
+        );
+      })}
     </div>
+  );
+}
+
+/* Everyone from 4th place down. */
+function RankList({ entries }) {
+  if (!entries.length) {
+    return <div className="sheet-empty">Players from 4th place onwards will show up here.</div>;
+  }
+  return (
+    <ol className="rank-list">
+      {entries.map((e, i) => (
+        <li key={e.id} className="lrow">
+          <span className="lrank">{i + 4}</span>
+          <Avatar name={e.name} className="lav" />
+          <div className="lwho">
+            <div className="lname">{e.name}</div>
+            <div className="lsub">{e.team ? <>{e.team} · </> : null}{e.sub}</div>
+          </div>
+          <div className="lscore">{e.score}<small>pts</small></div>
+        </li>
+      ))}
+    </ol>
   );
 }
 
@@ -94,26 +156,21 @@ export default function Scoreboard() {
   const { players, runs, matches } = data;
   const meta = TABS.find((t) => t.id === tab);
 
-  let rows = [];
+  // One shape for every board: name, score and a short detail line.
+  const entry = (r, score, sub) =>
+    ({ id: r.player.id, name: r.player.name, team: r.player.team, score, sub });
+  let entries;
   if (tab === "tank") {
-    rows = tankStandings(players, runs).map((r, i) => (
-      <Row key={r.player.id} rank={i + 1} name={r.player.name} team={r.player.team}
-        meta={<>
-          <b className={"time" + (r.dnf ? " dnf" : "")}>{r.dnf ? "DNF" : formatTime(r.best)}</b>
-          {` · ${r.attempts} run${r.attempts > 1 ? "s" : ""}`}
-        </>}
-        score={r.points} />
-    ));
+    entries = tankStandings(players, runs).map((r) => entry(r, r.points, <>
+      <b className={"time" + (r.dnf ? " dnf" : "")}>{r.dnf ? "DNF" : formatTime(r.best)}</b>
+      {` · ${r.attempts} run${r.attempts > 1 ? "s" : ""}`}
+    </>));
   } else if (tab === "balloon") {
-    rows = balloonStandings(players, matches).map((r, i) => (
-      <Row key={r.player.id} rank={i + 1} name={r.player.name} team={r.player.team}
-        meta={`${r.wins}W · ${r.losses}L`} score={r.points} />
-    ));
+    entries = balloonStandings(players, matches)
+      .map((r) => entry(r, r.points, `${r.wins}W · ${r.losses}L`));
   } else {
-    rows = overallStandings(players, runs, matches).map((r, i) => (
-      <Row key={r.player.id} rank={i + 1} name={r.player.name} team={r.player.team}
-        meta={`Tank ${r.tankPoints} · Balloon ${r.balloonPoints}`} score={r.total} />
-    ));
+    entries = overallStandings(players, runs, matches)
+      .map((r) => entry(r, r.total, `Tank ${r.tankPoints} · Balloon ${r.balloonPoints}`));
   }
 
   return (
@@ -135,9 +192,10 @@ export default function Scoreboard() {
 
       {err ? <div className="note err">{err}</div> : null}
 
-      <div className="tabs">
+      <div className="tabs" role="tablist">
         {TABS.map((t) => (
-          <button key={t.id} className={tab === t.id ? "on" : ""}
+          <button key={t.id} role="tab" aria-selected={tab === t.id}
+            className={tab === t.id ? "on" : ""}
             onClick={() => setTab(t.id)}>
             <span className="desk-only">{t.label}</span>
             <span className="phone-only">{t.short}</span>
@@ -145,12 +203,17 @@ export default function Scoreboard() {
         ))}
       </div>
 
-      <div className={"frame" + (tab === "balloon" ? " red" : "")}>
-        <div className="title"><h1>{meta.title}</h1></div>
-        <div className="caption">{meta.caption}</div>
-        {rows.length
-          ? <div className="rows">{rows}</div>
-          : <div className="empty">No scores recorded yet.</div>}
+      <div className="board">
+        <section className="stagebox">
+          <h1 className="board-title">{meta.title}</h1>
+          <p className="caption">{meta.caption}</p>
+          <Podium entries={entries} />
+        </section>
+
+        <section className="sheet" aria-label="Rankings from 4th place">
+          <div className="handle" aria-hidden="true" />
+          <RankList entries={entries.slice(3)} />
+        </section>
       </div>
 
       <div className="foot">
