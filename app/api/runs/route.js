@@ -14,10 +14,19 @@ export async function POST(req) {
     return Response.json({ error: "time required" }, { status: 400 });
   }
 
+  // A negative count would take seconds off the time, so refuse it.
+  const d = Number(drops ?? 0);
+  const r = Number(resets ?? 0);
+  if (!Number.isInteger(d) || !Number.isInteger(r) || d < 0 || r < 0) {
+    return Response.json(
+      { error: "Drops and hand touches must be whole numbers, 0 or more." },
+      { status: 400 });
+  }
+
   const [row] = await sql`
     insert into runs (player_id, time_sec, drops, resets, dnf)
     values (${player_id}, ${finished ? Number(time_sec) : 0},
-            ${Number(drops) || 0}, ${Number(resets) || 0}, ${Boolean(dnf)})
+            ${d}, ${r}, ${Boolean(dnf)})
     returning id`;
   return Response.json(row);
 }

@@ -96,7 +96,7 @@ export default function Admin() {
 
       {note ? <div className={"note " + (note.bad ? "err" : "ok")}>{note.text}</div> : null}
 
-      <AddPlayer send={send} flash={flash} />
+      <AddPlayer players={data.players} send={send} flash={flash} />
       <AddRun players={data.players} runs={data.runs} send={send} drop={drop} flash={flash} />
       <AddMatch players={data.players} matches={data.matches} send={send} drop={drop} flash={flash} />
       <PlayerList players={data.players} drop={drop} />
@@ -106,12 +106,33 @@ export default function Admin() {
 
 /* ------------------------------------------------------------------ */
 
-function AddPlayer({ send, flash }) {
+/* Dropdown text. The school tells two players with the same name apart. */
+function playerLabel(p) {
+  return p.team ? `${p.name} — ${p.team}` : p.name;
+}
+
+/* Drops and hand touches: whole numbers, 0 or more. */
+function validCount(v) {
+  const n = Number(v);
+  return String(v).trim() !== "" && Number.isInteger(n) && n >= 0;
+}
+
+function AddPlayer({ players, send, flash }) {
   const [name, setName] = useState("");
   const [team, setTeam] = useState("");
 
+  const same = (a, b) => a.trim().toLowerCase() === b.trim().toLowerCase();
+  const dupes = name.trim() ? players.filter((p) => same(p.name, name)) : [];
+
   const go = async () => {
     if (!name.trim()) return flash("Enter a name.", true);
+    if (dupes.length) {
+      const exact = dupes.some((p) => same(p.team || "", team));
+      const msg = exact
+        ? `${name.trim()}${team.trim() ? ` from ${team.trim()}` : ""} is already registered. Add them again anyway?`
+        : `A player named ${name.trim()} already exists. Add another one?`;
+      if (!confirm(msg)) return;
+    }
     if (await send("/api/players", { name, team })) { setName(""); setTeam(""); }
   };
 
@@ -128,6 +149,12 @@ function AddPlayer({ send, flash }) {
           <input value={team} onChange={(e) => setTeam(e.target.value)}
             placeholder="optional" onKeyDown={(e) => e.key === "Enter" && go()} /></div>
       </div>
+      {dupes.length
+        ? <div className="note err">
+            Already registered: {dupes.map(playerLabel).join(", ")}.
+            Add a school so they can be told apart.
+          </div>
+        : null}
       <button className="act" onClick={go}>Add player</button>
     </div>
   );
@@ -146,9 +173,11 @@ function AddRun({ players, runs, send, drop, flash }) {
 
   // Live preview of what this run will score, before it is saved.
   const secs = parseTime(time);
-  const adj = dnf || !secs ? null
+  const countsOk = validCount(drops) && validCount(resets);
+  const adj = dnf || !secs || !countsOk ? null
     : secs + Number(drops) * PENALTY_DROP + Number(resets) * PENALTY_RESET;
   const preview = dnf ? "DNF — 1 point"
+    : !countsOk ? "Drops and hand touches must be whole numbers, 0 or more"
     : adj ? `${formatTime(adj)} adjusted — ${tankBandLabel(adj)} — ${tankPoints(adj)} points`
     : time.trim() ? "Type the time as 1:27.5 or 87.5"
     : "Enter the time from the booth timer to preview the score";
@@ -156,9 +185,10 @@ function AddRun({ players, runs, send, drop, flash }) {
   const go = async () => {
     if (!pid) return flash("Choose a player.", true);
     if (!dnf && !secs) return flash("Enter the time as 1:27.5 or 87.5.", true);
+    if (!dnf && !countsOk) return flash("Drops and hand touches must be whole numbers, 0 or more.", true);
     const ok = await send("/api/runs", {
       player_id: Number(pid), time_sec: dnf ? 0 : secs,
-      drops: Number(drops), resets: Number(resets), dnf,
+      drops: dnf ? 0 : Number(drops), resets: dnf ? 0 : Number(resets), dnf,
     });
     if (ok) { setTime(""); setDrops(0); setResets(0); setDnf(false); }
   };
@@ -174,10 +204,10 @@ function AddRun({ players, runs, send, drop, flash }) {
       </p>
 
       <div className="row">
-        <div><label>Player</label>
+        <div className="wide"><label>Player</label>
           <select value={pid} onChange={(e) => setPid(e.target.value)}>
             {players.length
-              ? players.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)
+              ? players.map((p) => <option key={p.id} value={p.id}>{playerLabel(p)}</option>)
               : <option value="">Add a player first</option>}
           </select></div>
         <div><label>Time from booth timer</label>
@@ -186,10 +216,10 @@ function AddRun({ players, runs, send, drop, flash }) {
       </div>
       <div className="row">
         <div><label>Drops (+{PENALTY_DROP} sec)</label>
-          <input type="number" min="0" value={drops}
+          <input type="number" min="0" step="1" value={drops}
             onChange={(e) => setDrops(e.target.value)} disabled={dnf} /></div>
         <div><label>Hand touches (+{PENALTY_RESET} sec)</label>
-          <input type="number" min="0" value={resets}
+          <input type="number" min="0" step="1" value={resets}
             onChange={(e) => setResets(e.target.value)} disabled={dnf} /></div>
         <div><label>Result</label>
           <select value={dnf ? "1" : "0"} onChange={(e) => setDnf(e.target.value === "1")}>
@@ -198,7 +228,7 @@ function AddRun({ players, runs, send, drop, flash }) {
           </select></div>
       </div>
 
-      <div className="note ok">{preview}</div>
+      <div className={"note " + (countsOk || dnf ? "ok" : "err")}>{preview}</div>
       <button className="act" onClick={go}>Save run</button>
 
       <div style={{ height: 18 }} />
@@ -211,7 +241,9 @@ function AddRun({ players, runs, send, drop, flash }) {
                     {r.dnf ? "DNF" : `${formatTime(adjustedTime(r))} · ${tankPoints(adjustedTime(r))} pts`}
                   </span>
                 </span>
-                <button className="del" onClick={() => drop("/api/runs", r.id)}>remove</button>
+                <button className="del"
+                  onClick={() => confirm(`Remove ${nameOf(r.player_id)}'s run (${r.dnf ? "DNF" : formatTime(adjustedTime(r))})?`)
+                    && drop("/api/runs", r.id)}>remove</button>
               </div>
             ))
           : <div className="sub">No runs yet.</div>}
@@ -235,6 +267,10 @@ function AddMatch({ players, matches, send, drop, flash }) {
   useEffect(() => { if (w !== a && w !== b) setW(a); }, [a, b, w]);
 
   const nameOf = (id) => players.find((p) => p.id === Number(id))?.name || "(removed)";
+  const labelOf = (id) => {
+    const p = players.find((x) => x.id === Number(id));
+    return p ? playerLabel(p) : "(removed)";
+  };
 
   const go = async () => {
     if (!a || !b) return flash("Choose both players.", true);
@@ -242,21 +278,21 @@ function AddMatch({ players, matches, send, drop, flash }) {
     await send("/api/matches", { a_id: Number(a), b_id: Number(b), winner_id: Number(w) });
   };
 
-  const opts = players.map((p) => <option key={p.id} value={p.id}>{p.name}</option>);
+  const opts = players.map((p) => <option key={p.id} value={p.id}>{playerLabel(p)}</option>);
 
   return (
     <div className="card">
       <h2>Pop the Balloon — record a match</h2>
       <p className="sub">Winner takes 3 points. Everyone who plays gets 1.</p>
       <div className="row">
-        <div><label>Player A</label>
+        <div className="wide"><label>Player A</label>
           <select value={a} onChange={(e) => setA(e.target.value)}>{opts}</select></div>
-        <div><label>Player B</label>
+        <div className="wide"><label>Player B</label>
           <select value={b} onChange={(e) => setB(e.target.value)}>{opts}</select></div>
         <div><label>Winner</label>
           <select value={w} onChange={(e) => setW(e.target.value)}>
-            {a ? <option value={a}>{nameOf(a)}</option> : null}
-            {b && b !== a ? <option value={b}>{nameOf(b)}</option> : null}
+            {a ? <option value={a}>{labelOf(a)}</option> : null}
+            {b && b !== a ? <option value={b}>{labelOf(b)}</option> : null}
           </select></div>
       </div>
       <button className="act" onClick={go}>Save match</button>
@@ -268,7 +304,9 @@ function AddMatch({ players, matches, send, drop, flash }) {
               <div key={m.id}>
                 <span>{nameOf(m.a_id)} vs {nameOf(m.b_id)}
                   <span className="pill">{nameOf(m.winner_id)} won</span></span>
-                <button className="del" onClick={() => drop("/api/matches", m.id)}>remove</button>
+                <button className="del"
+                  onClick={() => confirm(`Remove the match ${nameOf(m.a_id)} vs ${nameOf(m.b_id)}?`)
+                    && drop("/api/matches", m.id)}>remove</button>
               </div>
             ))
           : <div className="sub">No matches yet.</div>}

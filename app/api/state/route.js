@@ -13,6 +13,8 @@ export async function GET() {
     ]);
     return Response.json({ players, runs, matches });
   } catch (e) {
-    return Response.json({ error: String(e.message) }, { status: 500 });
+    // Details go to the Vercel logs, not to the public scoreboard.
+    console.error("GET /api/state failed:", e);
+    return Response.json({ error: "Scores unavailable." }, { status: 500 });
   }
 }
