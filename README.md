@@ -13,11 +13,11 @@ drop = +5s, hand touch or manual reset = +10s.
 
 | Adjusted time | Points |
 | --- | --- |
-| Under 1:30 | 10 |
-| Under 2:00 | 8 |
-| Under 2:30 | 6 |
-| Under 3:00 | 4 |
-| 3:00 or over | 2 |
+| Under 2:00 | 10 |
+| Under 2:30 | 8 |
+| Under 3:00 | 6 |
+| Under 3:30 | 4 |
+| 3:30 or over | 2 |
 | Did not finish | 1 |
 
 **Pop the Balloon Challenge** — each match, the winner gets 3 points and

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Brand, FacebookLink } from "../brand";
 import {
   adjustedTime, formatTime, parseTime, tankPoints, tankBandLabel, TANK_BANDS,
+  TANK_SLOW_LABEL, TANK_SLOW_POINTS, TANK_DNF_POINTS,
   PENALTY_DROP, PENALTY_RESET,
 } from "@/lib/scoring";
 
@@ -178,7 +179,7 @@ function AddRun({ players, runs, send, drop, flash }) {
   const countsOk = validCount(drops) && validCount(resets);
   const adj = dnf || !secs || !countsOk ? null
     : secs + Number(drops) * PENALTY_DROP + Number(resets) * PENALTY_RESET;
-  const preview = dnf ? "DNF — 1 point"
+  const preview = dnf ? `DNF — ${TANK_DNF_POINTS} point${TANK_DNF_POINTS === 1 ? "" : "s"}`
     : !countsOk ? "Drops and hand touches must be whole numbers, 0 or more"
     : adj ? `${formatTime(adj)} adjusted — ${tankBandLabel(adj)} — ${tankPoints(adj)} points`
     : time.trim() ? "Type the time as 1:27.5 or 87.5"
@@ -202,7 +203,8 @@ function AddRun({ players, runs, send, drop, flash }) {
       <h2>Robotic Arm Tank — record a run</h2>
       <p className="sub">
         Unlimited attempts, best time counts.{" "}
-        {TANK_BANDS.map((b) => `${b.label} = ${b.points}`).join(" · ")} · 3:00+ = 2 · DNF = 1
+        {TANK_BANDS.map((b) => `${b.label} = ${b.points}`).join(" · ")}
+        {` · ${TANK_SLOW_LABEL} = ${TANK_SLOW_POINTS} · DNF = ${TANK_DNF_POINTS}`}
       </p>
 
       <div className="row">
