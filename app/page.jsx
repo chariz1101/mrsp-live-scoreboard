@@ -102,7 +102,7 @@ const TABS = [
   { id: "overall", label: "Overall Champion", short: "Overall", title: "Leaderboard",
     caption: "Tank band points plus balloon match points" },
   { id: "tank", label: "Robotic Arm Tank", short: "Arm Tank", title: "Arm Tank",
-    caption: "Unlimited attempts, best time counts. Drops add 5s, hand touches add 10s." },
+    caption: "Every run scores and the points add up. Drops add 5s, hand touches add 10s." },
   { id: "balloon", label: "Pop the Balloon", short: "Balloon", title: "Balloon Pop",
     caption: "Each match: the winner gets 3 points, the other player gets 1" },
 ];

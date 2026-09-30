@@ -202,7 +202,7 @@ function AddRun({ players, runs, send, drop, flash }) {
     <div className="card">
       <h2>Robotic Arm Tank — record a run</h2>
       <p className="sub">
-        Unlimited attempts, best time counts.{" "}
+        Unlimited attempts; every run's points add up.{" "}
         {TANK_BANDS.map((b) => `${b.label} = ${b.points}`).join(" · ")}
         {` · ${TANK_SLOW_LABEL} = ${TANK_SLOW_POINTS} · DNF = ${TANK_DNF_POINTS}`}
       </p>

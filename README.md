@@ -7,7 +7,8 @@ Next.js + Neon Postgres, deployed on Vercel.
 
 ## Scoring
 
-**Robotic Arm Tank Challenge** — unlimited attempts, the best time counts.
+**Robotic Arm Tank Challenge** — unlimited attempts, and every run's
+points add up (a run that doesn't finish still earns its DNF point).
 Penalties are added to the raw time before banding:
 drop = +5s, hand touch or manual reset = +10s.
 
