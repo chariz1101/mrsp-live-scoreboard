@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Brand, FacebookLink } from "../brand";
 import {
@@ -62,6 +62,10 @@ export default function Admin() {
     await pull();
   };
 
+  // Newest first (ids follow the order players were added), so the
+  // player who just registered is at the top of every list.
+  const players = [...data.players].sort((x, y) => y.id - x.id);
+
   if (!unlocked) {
     return (
       <div className="wrap">
@@ -99,10 +103,10 @@ export default function Admin() {
 
       {note ? <div className={"note " + (note.bad ? "err" : "ok")}>{note.text}</div> : null}
 
-      <AddPlayer players={data.players} send={send} flash={flash} />
-      <AddRun players={data.players} runs={data.runs} send={send} drop={drop} flash={flash} />
-      <AddMatch players={data.players} matches={data.matches} send={send} drop={drop} flash={flash} />
-      <PlayerList players={data.players} drop={drop} />
+      <AddPlayer players={players} send={send} flash={flash} />
+      <AddRun players={players} runs={data.runs} send={send} drop={drop} flash={flash} />
+      <AddMatch players={players} matches={data.matches} send={send} drop={drop} flash={flash} />
+      <PlayerList players={players} drop={drop} />
     </div>
   );
 }
@@ -163,8 +167,21 @@ function AddPlayer({ players, send, flash }) {
   );
 }
 
+/* Calls onNew(id) when a player is added after the page loaded, so the
+   forms can jump straight to them. Players arrive newest first. */
+function useNewestPlayer(players, onNew) {
+  const newest = players[0]?.id;
+  const seen = useRef(null);
+  useEffect(() => {
+    if (newest == null) return;
+    if (seen.current != null && newest > seen.current) onNew(newest);
+    seen.current = Math.max(seen.current ?? 0, newest);
+  }, [newest]); // eslint-disable-line react-hooks/exhaustive-deps
+}
+
 function AddRun({ players, runs, send, drop, flash }) {
   const [pid, setPid] = useState("");
+  useNewestPlayer(players, (id) => setPid(String(id)));
   const [time, setTime] = useState("");
   const [drops, setDrops] = useState(0);
   const [resets, setResets] = useState(0);
@@ -259,6 +276,10 @@ function AddRun({ players, runs, send, drop, flash }) {
 function AddMatch({ players, matches, send, drop, flash }) {
   const [a, setA] = useState("");
   const [b, setB] = useState("");
+  useNewestPlayer(players, (id) => {
+    setA(String(id));
+    if (b === String(id)) setB(players[1] ? String(players[1].id) : "");
+  });
   const [w, setW] = useState("");
 
   useEffect(() => {
@@ -323,7 +344,7 @@ function PlayerList({ players, drop }) {
   return (
     <div className="card">
       <h2>Players</h2>
-      <p className="sub">Removing a player also removes their runs and matches.</p>
+      <p className="sub">Newest first. Removing a player also removes their runs and matches.</p>
       <div className="log">
         {players.length
           ? players.map((p) => (

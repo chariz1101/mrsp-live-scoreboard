@@ -64,11 +64,14 @@ will not pick them up.
 
 Open `/` on the display laptop and turn on Auto-rotate; it cycles the
 three boards every 9 seconds. On screens wider than 1100px a
-"Scan to follow along" QR sits to the right of the leaderboard; it is
+"Scan to follow along" QR sits to the right of the leaderboard, with a
+QR for the chapter's Facebook page below it. The scoreboard QR is
 generated from the address the page is open on, so open the display on
 the public Vercel URL (not localhost) so the QR points somewhere
 visitors can reach. Facilitators open `/admin` on their phones, unlock
-once, and the session lasts 12 hours.
+once, and the session lasts 12 hours. Players are listed newest first,
+and a player added from that page is picked automatically in the Arm
+Tank and Balloon forms.
 
 Time the Arm Tank runs with the booth's own timer, then type the time
 into the admin page as `1:27.5` or `87.5` (seconds). Before saving, the
