@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import QRCode from "qrcode";
-import { Brand, FacebookLink } from "./brand";
+import { Brand, FacebookLink, FACEBOOK_URL } from "./brand";
 import { Welcome, hasSeenWelcome } from "./welcome";
 import {
   tankStandings, balloonStandings, overallStandings, formatTime,
@@ -77,30 +77,53 @@ function Podium({ entries }) {
   );
 }
 
-/* QR to this scoreboard for the booth display. Built from the address the
-   page is open on, so it stays right if the domain changes. */
-function ScanPanel() {
+/* QR image as a data URL, drawn in the brand navy. Level "L" gives the
+   coarsest pattern, which suits long links shown small on a screen. */
+function useQr(url, level = "M") {
   const [qr, setQr] = useState(null);
-  const [host, setHost] = useState("");
-
   useEffect(() => {
-    const url = window.location.origin + "/";
-    setHost(window.location.host);
-    QRCode.toString(url, { type: "svg", margin: 1, errorCorrectionLevel: "M",
+    if (!url) return;
+    QRCode.toString(url, { type: "svg", margin: 1, errorCorrectionLevel: level,
       color: { dark: "#09065d", light: "#ffffff" } })
       .then((svg) => setQr("data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg)))
       .catch(() => setQr(null));
+  }, [url, level]);
+  return qr;
+}
+
+/* Booth-display QRs: this scoreboard, then the chapter's Facebook page.
+   The scoreboard link is built from the address the page is open on, so
+   it stays right if the domain changes. */
+function ScanPanel() {
+  const [site, setSite] = useState({ url: "", host: "" });
+  useEffect(() => {
+    setSite({ url: window.location.origin + "/", host: window.location.host });
   }, []);
+  const siteQr = useQr(site.url);
+  const fbQr = useQr(FACEBOOK_URL, "L");
 
   return (
-    <aside className="scan" aria-label="Scan to open the live scoreboard">
-      <div className="scan-eyebrow">Live scoreboard</div>
-      <h2>Scan to follow along</h2>
-      <div className="scan-qr">
-        {qr ? <img src={qr} alt={`QR code for ${host}`} /> : null}
+    <aside className="scan-col">
+      <div className="scan" aria-label="Scan to open the live scoreboard">
+        <div className="scan-eyebrow">Live scoreboard</div>
+        <h2>Scan to follow along</h2>
+        <div className="scan-qr">
+          {siteQr ? <img src={siteQr} alt={`QR code for ${site.host}`} /> : null}
+        </div>
+        <div className="scan-url">{site.host}</div>
+        <p>Point your phone camera here. Scores update every few seconds.</p>
       </div>
-      <div className="scan-url">{host}</div>
-      <p>Point your phone camera here. Scores update every few seconds.</p>
+
+      <div className="scan scan-fb" aria-label="Scan to open our Facebook page">
+        <div className="scan-qr">
+          {fbQr ? <img src={fbQr} alt="QR code for the MRSP Western Visayas Junior Chapter Facebook page" /> : null}
+        </div>
+        <div className="scan-fb-text">
+          <div className="scan-eyebrow fb">Facebook</div>
+          <h3>Follow MRSP WV Junior Chapter</h3>
+          <p>Scan for photos, results and upcoming events.</p>
+        </div>
+      </div>
     </aside>
   );
 }
