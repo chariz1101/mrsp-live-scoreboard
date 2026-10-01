@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import QRCode from "qrcode";
 import { Brand, FacebookLink } from "./brand";
 import { Welcome, hasSeenWelcome } from "./welcome";
 import {
@@ -73,6 +74,34 @@ function Podium({ entries }) {
         );
       })}
     </div>
+  );
+}
+
+/* QR to this scoreboard for the booth display. Built from the address the
+   page is open on, so it stays right if the domain changes. */
+function ScanPanel() {
+  const [qr, setQr] = useState(null);
+  const [host, setHost] = useState("");
+
+  useEffect(() => {
+    const url = window.location.origin + "/";
+    setHost(window.location.host);
+    QRCode.toString(url, { type: "svg", margin: 1, errorCorrectionLevel: "M",
+      color: { dark: "#09065d", light: "#ffffff" } })
+      .then((svg) => setQr("data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg)))
+      .catch(() => setQr(null));
+  }, []);
+
+  return (
+    <aside className="scan" aria-label="Scan to open the live scoreboard">
+      <div className="scan-eyebrow">Live scoreboard</div>
+      <h2>Scan to follow along</h2>
+      <div className="scan-qr">
+        {qr ? <img src={qr} alt={`QR code for ${host}`} /> : null}
+      </div>
+      <div className="scan-url">{host}</div>
+      <p>Point your phone camera here. Scores update every few seconds.</p>
+    </aside>
   );
 }
 
@@ -203,6 +232,7 @@ export default function Scoreboard() {
         ))}
       </div>
 
+      <div className="layout">
       <div className="board">
         <section className="stagebox">
           <h1 className="board-title">{meta.title}</h1>
@@ -214,6 +244,9 @@ export default function Scoreboard() {
           <div className="handle" aria-hidden="true" />
           <RankList entries={entries.slice(3)} />
         </section>
+      </div>
+
+      <ScanPanel />
       </div>
 
       <div className="foot">

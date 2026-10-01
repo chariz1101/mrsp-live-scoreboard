@@ -63,8 +63,12 @@ will not pick them up.
 ## Booth setup on the day
 
 Open `/` on the display laptop and turn on Auto-rotate; it cycles the
-three boards every 9 seconds. Facilitators open `/admin` on their
-phones, unlock once, and the session lasts 12 hours.
+three boards every 9 seconds. On screens wider than 1100px a
+"Scan to follow along" QR sits to the right of the leaderboard; it is
+generated from the address the page is open on, so open the display on
+the public Vercel URL (not localhost) so the QR points somewhere
+visitors can reach. Facilitators open `/admin` on their phones, unlock
+once, and the session lasts 12 hours.
 
 Time the Arm Tank runs with the booth's own timer, then type the time
 into the admin page as `1:27.5` or `87.5` (seconds). Before saving, the
