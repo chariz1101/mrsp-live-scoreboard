@@ -179,6 +179,58 @@ function useNewestPlayer(players, onNew) {
   }, [newest]); // eslint-disable-line react-hooks/exhaustive-deps
 }
 
+/* Built-in stopwatch for the Arm Tank. Stop drops the time straight into
+   the run form; it counts from Date.now(), so it stays accurate even if
+   the phone screen dims or the page re-renders. */
+function Stopwatch({ onStop, resetKey }) {
+  const [ms, setMs] = useState(0);
+  const [running, setRunning] = useState(false);
+  const started = useRef(0);
+  const base = useRef(0);
+
+  useEffect(() => {
+    if (!running) return;
+    const t = setInterval(() => setMs(base.current + (Date.now() - started.current)), 100);
+    return () => clearInterval(t);
+  }, [running]);
+
+  // A saved run clears the clock for the next player.
+  useEffect(() => { base.current = 0; setMs(0); setRunning(false); }, [resetKey]);
+
+  const start = () => { started.current = Date.now(); setRunning(true); };
+  const stop = () => {
+    const total = base.current + (Date.now() - started.current);
+    base.current = total;
+    setMs(total);
+    setRunning(false);
+    onStop(Math.floor(total / 100) / 10);  // same tenth the clock shows
+  };
+  const reset = () => { base.current = 0; setMs(0); setRunning(false); };
+
+  const m = Math.floor(ms / 60000);
+  const s = Math.floor((ms % 60000) / 1000);
+  const tenth = Math.floor((ms % 1000) / 100);
+
+  return (
+    <div className={"timer" + (running ? " on" : "")}>
+      <div className="disp" aria-live="off">
+        {String(m).padStart(2, "0")}:{String(s).padStart(2, "0")}.{tenth}
+      </div>
+      <div className="btns">
+        {running
+          ? <button className="act stop" onClick={stop}>Stop</button>
+          : <button className="act" onClick={start}>{ms ? "Resume" : "Start"}</button>}
+        <button className="ghost" onClick={reset} disabled={running || !ms}>Reset</button>
+      </div>
+      <div className="timer-hint">
+        {running ? "Timing… tap Stop when the run ends."
+          : ms ? "Time filled in below. Add penalties, then save."
+          : "Tap Start when the player begins."}
+      </div>
+    </div>
+  );
+}
+
 function AddRun({ players, runs, send, drop, flash }) {
   const [pid, setPid] = useState("");
   useNewestPlayer(players, (id) => setPid(String(id)));
@@ -186,6 +238,7 @@ function AddRun({ players, runs, send, drop, flash }) {
   const [drops, setDrops] = useState(0);
   const [resets, setResets] = useState(0);
   const [dnf, setDnf] = useState(false);
+  const [timerKey, setTimerKey] = useState(0);
 
   useEffect(() => {
     if (!pid && players.length) setPid(String(players[0].id));
@@ -200,7 +253,7 @@ function AddRun({ players, runs, send, drop, flash }) {
     : !countsOk ? "Drops and hand touches must be whole numbers, 0 or more"
     : adj ? `${formatTime(adj)} adjusted — ${tankBandLabel(adj)} — ${tankPoints(adj)} points`
     : time.trim() ? "Type the time as 1:27.5 or 87.5"
-    : "Enter the time from the booth timer to preview the score";
+    : "Use the timer or type the time to preview the score";
 
   const go = async () => {
     if (!pid) return flash("Choose a player.", true);
@@ -210,7 +263,7 @@ function AddRun({ players, runs, send, drop, flash }) {
       player_id: Number(pid), time_sec: dnf ? 0 : secs,
       drops: dnf ? 0 : Number(drops), resets: dnf ? 0 : Number(resets), dnf,
     });
-    if (ok) { setTime(""); setDrops(0); setResets(0); setDnf(false); }
+    if (ok) { setTime(""); setDrops(0); setResets(0); setDnf(false); setTimerKey((k) => k + 1); }
   };
 
   const nameOf = (id) => players.find((p) => p.id === id)?.name || "(removed)";
@@ -224,6 +277,8 @@ function AddRun({ players, runs, send, drop, flash }) {
         {` · ${TANK_SLOW_LABEL} = ${TANK_SLOW_POINTS} · DNF = ${TANK_DNF_POINTS}`}
       </p>
 
+      <Stopwatch resetKey={timerKey} onStop={(sec) => { setDnf(false); setTime(formatTime(sec)); }} />
+
       <div className="row">
         <div className="wide"><label>Player</label>
           <select value={pid} onChange={(e) => setPid(e.target.value)}>
@@ -231,7 +286,7 @@ function AddRun({ players, runs, send, drop, flash }) {
               ? players.map((p) => <option key={p.id} value={p.id}>{playerLabel(p)}</option>)
               : <option value="">Add a player first</option>}
           </select></div>
-        <div><label>Time from booth timer</label>
+        <div><label>Time (from the timer, or type it)</label>
           <input value={time} placeholder="1:27.5" autoComplete="off"
             onChange={(e) => setTime(e.target.value)} disabled={dnf} /></div>
       </div>

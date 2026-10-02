@@ -73,10 +73,12 @@ once, and the session lasts 12 hours. Players are listed newest first,
 and a player added from that page is picked automatically in the Arm
 Tank and Balloon forms.
 
-Time the Arm Tank runs with the booth's own timer, then type the time
-into the admin page as `1:27.5` or `87.5` (seconds). Before saving, the
-panel previews exactly what the run will score, so you can tell the
-player their points immediately.
+Time Arm Tank runs with the stopwatch on the admin page: tap Start when
+the player begins and Stop when they finish, and the time drops into the
+form. You can still type a time from another timer as `1:27.5` or `87.5`
+(seconds). Before saving, the panel previews exactly what the run will
+score, so you can tell the player their points immediately. Saving a run
+resets the stopwatch for the next player.
 
 ## Branding
 
