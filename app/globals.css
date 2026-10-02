@@ -213,6 +213,21 @@ input:disabled{opacity:.45;}
   font-size:15px;font-weight:700;cursor:pointer;}
 .act:hover{background:var(--red-bright);}
 .act:disabled{opacity:.45;cursor:not-allowed;}
+.ghost{background:transparent;border:1px solid var(--line);color:var(--ink);
+  padding:11px 20px;border-radius:6px;font-size:15px;font-weight:600;cursor:pointer;}
+.ghost:disabled{opacity:.4;cursor:not-allowed;}
+
+/* Arm Tank stopwatch */
+.timer{background:rgba(5,3,58,.75);border:1px solid var(--line);border-radius:14px;
+  padding:18px 16px 14px;text-align:center;margin-bottom:18px;}
+.timer.on{border-color:var(--red-bright);box-shadow:0 0 0 3px rgba(208,18,26,.25);}
+.timer .disp{font-size:56px;font-weight:700;line-height:1;letter-spacing:2px;
+  font-variant-numeric:tabular-nums;margin-bottom:14px;}
+.timer.on .disp{color:#fff;}
+.timer .btns{display:flex;gap:10px;justify-content:center;}
+.timer .btns .act{min-width:130px;font-size:17px;padding:14px 22px;}
+.timer .btns .act.stop{background:var(--royal-bright);}
+.timer-hint{margin-top:10px;font-size:12px;color:var(--dim);}
 .del{background:transparent;border:1px solid rgba(255,138,144,.5);color:#ff8a90;
   padding:5px 12px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;}
 .log div{display:flex;justify-content:space-between;align-items:center;gap:10px;
